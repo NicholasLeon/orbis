@@ -13,9 +13,9 @@ export function useSocket(channelId: string, user: any) {
     socketRef.current = ws;
 
     ws.onmessage = (event) => {
-  const data = JSON.parse(event.data);
-  if (data.type === "NEW_MESSAGE") {
-    queryClient.setQueryData<InfiniteData<{ items: Message[]; nextCursor: string | null }>>(
+      const data = JSON.parse(event.data);
+      if (data.type === "NEW_MESSAGE") {
+      queryClient.setQueryData<InfiniteData<{ items: Message[]; nextCursor: string | null }>>(
       ["messages", channelId],
       (oldData) => {
         if (!oldData) return undefined;

@@ -16,26 +16,46 @@ export function DashboardShell({
   children,
   channels,
 }: DashboardShellProps) {
-  console.log("📦 DASHBOARD USER:", user);
   return (
     <SidebarProvider>
-      <div className="flex flex-col h-screen w-full bg-[#09090B] overflow-hidden">
-        <Navbar user={user} />
-        <div className="flex flex-1 overflow-hidden">
-          <AppSidebar
+      {/* Parent Container: 
+        H-screen memaksa aplikasi setinggi layar. 
+        W-full memastikan tidak ada overflow horizontal yang tidak diinginkan.
+      */}
+      <div className="flex h-screen w-full bg-[#09090B] overflow-hidden antialiased">
+        
+        {/* Sidebar: Tersembunyi otomatis di mobile (dibawah 1024px) oleh SidebarProvider */}
+        <AppSidebar
           workspaces={workspaces}
           channels={channels}
           userRole={userRole}
-          />
+        />
+        
+        {/* Main Area: 
+          SidebarInset adalah pembungkus konten utama yang cerdas. 
+          Ia akan menyesuaikan lebarnya saat sidebar di-toggle.
+        */}
+        <SidebarInset className="bg-[#09090B] flex flex-col flex-1 min-w-0 overflow-hidden border-l border-zinc-800/30">
           
-          <SidebarInset className="bg-[#09090B] flex flex-1 flex-col border-l border-zinc-800/40 overflow-hidden">
-            <main className="flex-1 overflow-y-auto">
-              <QueryProvider>
-              {children}
-              </QueryProvider>
-            </main>
-          </SidebarInset>
-        </div>
+          {/* Navbar: 
+            Sekarang ditaruh di dalam SidebarInset agar tetap sejajar 
+            dengan konten saat sidebar terbuka.
+          */}
+          <Navbar user={user} />
+          
+          {/* Main Content Wrapper:
+            min-h-0 sangat krusial agar overflow-y-auto di dalamnya bekerja 
+            ketika konten melebihi tinggi layar.
+          */}
+          <main className="flex-1 min-h-0 overflow-y-auto relative custom-scrollbar">
+            <QueryProvider>
+              {/* Padding bawah ditambahkan agar konten tidak mepet di mobile */}
+              <div className="h-full pb-6 md:pb-0">
+                {children}
+              </div>
+            </QueryProvider>
+          </main>
+        </SidebarInset>
       </div>
     </SidebarProvider>
   )

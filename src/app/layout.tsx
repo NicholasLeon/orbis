@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { DashboardShell } from "./dashboard/components/DashboardShell";
 import "./globals.css";
 import SmoothScroll from "./components/scroll/SmoothScroll";
 

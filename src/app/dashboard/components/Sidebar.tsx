@@ -1,15 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import { Search, Plus, LayoutGrid, Trash2 } from "lucide-react"
+import { Search, Plus, LayoutGrid, Trash2, Check } from "lucide-react"
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { CreateChannelModal } from "./createPage/CreateChannel";
 import { AppSidebarProps } from "@/schemas/sidebar.schema";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { InviteSection } from "./inviteSection";
 import { deleteChannelAction } from "@/actions/deleteChannelAction";
-import { useRouter } from "next/navigation";
 
 export function AppSidebar({ workspaces, channels, userRole }: AppSidebarProps) {
   const [isChannelModalOpen, setIsChannelModalOpen] = useState(false)
@@ -20,16 +20,10 @@ export function AppSidebar({ workspaces, channels, userRole }: AppSidebarProps) 
   const isAdmin = userRole === "admin";
   const currentChannelId = params?.channelId as string;
 
- const handleDeleteChannel = async (channelId: string, channelName: string) => {
-    const confirmDelete = confirm(
-      `Delete channel "${channelName}"?\n\nThis action cannot be undone.`
-    );
-
-    if (!confirmDelete) return;
-
+  const handleDeleteChannel = async (channelId: string, channelName: string) => {
+    if (!confirm(`Delete channel "${channelName}"?\n\nThis action cannot be undone.`)) return;
     try {
       await deleteChannelAction(channelId);
-
       router.refresh();
     } catch (err) {
       console.error(err);
@@ -38,12 +32,7 @@ export function AppSidebar({ workspaces, channels, userRole }: AppSidebarProps) 
   };
 
   const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((word) => word[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+    return name.split(" ").map((word) => word[0]).join("").toUpperCase().slice(0, 2);
   };
 
   return (
@@ -52,31 +41,70 @@ export function AppSidebar({ workspaces, channels, userRole }: AppSidebarProps) 
         <SidebarMenu>
           <SidebarMenuItem>
             {activeWorkspace ? (
-              <>
-                <SidebarMenuButton size="lg" className="h-12 hover:bg-zinc-900/50 border border-transparent hover:border-zinc-800/50 transition-all rounded-lg">
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-md bg-gradient-to-br from-blue-500/20 to-indigo-900/40 text-blue-400 text-xs font-bold uppercase ring-1 ring-blue-500/30">
-                    {activeWorkspace.name[0]}
-                  </div>
+              <div className="flex items-center gap-1">
+                <Link href="/dashboard" className="flex-1 min-w-0">
+                  <SidebarMenuButton size="lg" className="h-12 w-full hover:bg-zinc-900/50 border border-transparent hover:border-zinc-800/50 transition-all rounded-lg justify-start">
+                    <div className="flex aspect-square size-8 shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-blue-500/20 to-indigo-900/40 text-blue-400 text-xs font-bold uppercase ring-1 ring-blue-500/30">
+                      {activeWorkspace.name[0]}
+                    </div>
+                    <div className="flex flex-col gap-0.5 leading-none ml-2 text-left min-w-0">
+                      <span className="font-semibold text-sm text-zinc-200 truncate">
+                        {activeWorkspace.name}
+                      </span>
+                      <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">
+                        Active
+                      </span>
+                    </div>
+                  </SidebarMenuButton>
+                </Link>
 
-                  <div className="flex flex-col gap-0.5 leading-none ml-2 text-left">
-                    <span className="font-semibold text-sm text-zinc-200 truncate max-w-[140px]">
-                      {activeWorkspace.name}
-                    </span>
-                    <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">
-                      Workspace
-                    </span>
-                  </div>
-
-                  <LayoutGrid className="ml-auto size-4 text-zinc-600" />
-                </SidebarMenuButton>
-
-                {isAdmin && (
-                  <InviteSection inviteCode={activeWorkspace.inviteCode} />
-                )}
-              </>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="p-2 hover:bg-zinc-900/50 rounded-lg text-zinc-600 hover:text-blue-400 transition-colors">
+                      <LayoutGrid className="size-4" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-64 bg-[#09090B] border-zinc-800 text-zinc-300" align="end" side="bottom">
+                    <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 py-3">
+                      Your Workspaces
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-zinc-800" />
+                    
+                    <div className="max-h-[300px] overflow-y-auto p-1">
+                      {workspaces && workspaces.length > 0 ? (
+                        workspaces.map((workspace) => (
+                          <DropdownMenuItem 
+                            key={workspace.id} 
+                            onClick={() => router.push(`/dashboard/${workspace.id}`)}
+                            className="flex items-center gap-3 p-2 focus:bg-blue-500/10 focus:text-blue-300 rounded-md cursor-pointer group"
+                          >
+                            <div className="size-7 rounded bg-zinc-800 flex items-center justify-center text-[10px] font-bold group-focus:bg-blue-500/20 group-focus:text-blue-400 transition-colors">
+                              {workspace.name[0].toUpperCase()}
+                            </div>
+                            <span className="flex-1 truncate text-xs font-medium">{workspace.name}</span>
+                            {workspace.id === activeWorkspace.id && (
+                              <Check className="size-3 text-blue-500" />
+                            )}
+                          </DropdownMenuItem>
+                        ))
+                      ) : (
+                        <div className="py-6 text-center">
+                          <p className="text-[10px] text-zinc-600 italic">No other workspaces found</p>
+                        </div>
+                      )}
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             ) : (
               <div className="p-3 text-[11px] font-medium text-zinc-500 border border-dashed border-zinc-800 rounded-lg text-center bg-zinc-900/20">
                 No Workspace Selected
+              </div>
+            )}
+
+            {activeWorkspace && isAdmin && (
+              <div className="mt-2">
+                <InviteSection inviteCode={activeWorkspace.inviteCode} />
               </div>
             )}
           </SidebarMenuItem>
@@ -115,49 +143,38 @@ export function AppSidebar({ workspaces, channels, userRole }: AppSidebarProps) 
                 channels.map((channel) => {
                   const isActive = currentChannelId === channel.id;
                   return (
-                    <SidebarMenuItem key={channel.id}>
-                      <Link
-                        href={`/dashboard/${activeWorkspace.id}/${channel.id}`}
-                        className="block"
-                      >
-                        <SidebarMenuButton
+                    <SidebarMenuItem key={channel.id} className="group relative">
+                      <Link href={`/dashboard/${activeWorkspace.id}/${channel.id}`} className="block">
+                        <SidebarMenuButton 
                           className={`h-10 px-2 pr-8 rounded-lg transition-all duration-200 ${
-                            isActive
-                              ? 'bg-blue-500/10 text-blue-300 ring-1 ring-blue-500/20'
-                              : 'text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200'
+                            isActive 
+                            ? 'bg-blue-500/10 text-blue-300 ring-1 ring-blue-500/20' 
+                            : 'text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200'
                           }`}
                         >
                           <div className={`flex items-center justify-center size-6 rounded text-[9px] font-bold ${
-                            isActive
-                              ? 'bg-blue-500/20 text-blue-400'
-                              : 'bg-zinc-800/50 text-zinc-500'
+                            isActive ? 'bg-blue-500/20 text-blue-400' : 'bg-zinc-800/50 text-zinc-500'
                           }`}>
                             {getInitials(channel.name)}
                           </div>
-
                           <span className="truncate ml-2 text-[12px] font-medium capitalize">
                             {channel.name}
                           </span>
                         </SidebarMenuButton>
                       </Link>
+                      
                       {isAdmin && (
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleDeleteChannel(channel.id, channel.name);
-                        }}
-                        className="
-                          absolute right-2 top-1/2 -translate-y-1/2
-                          p-0.5 rounded
-                          opacity-0 group-hover:opacity-100
-                          hover:bg-red-500/10
-                          transition
-                        "
-                      >
-                        <Trash2 className="size-3 text-red-400/70 hover:text-red-400" />
-                      </button>
-                    )}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleDeleteChannel(channel.id, channel.name);
+                          }}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-red-500/10 transition-all"
+                        >
+                          <Trash2 className="size-3 text-red-400/70 hover:text-red-400" />
+                        </button>
+                      )}
                     </SidebarMenuItem>
                   );
                 })

@@ -45,9 +45,9 @@ export default function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 1 }}
-          className="max-w-md text-[#8ffcff]/50 text-sm md:text-base mb-16 leading-relaxed font-light uppercase tracking-[0.2em]"
+          className="max-w-md text-[#8ffcff]/50 text-sm md:text-base mb-16 leading-relaxed font-light uppercase tracking-[0.2em] text-center"
         >
-          Universal synchronization layer for high-performance enterprise teams.
+          Universal synchronization layer for enterprise teams.
         </motion.p>
 
         <motion.div

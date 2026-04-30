@@ -18,23 +18,21 @@ export default async function ChannelPage({ params }: ChannelPageProps) {
   
   if (!session) redirect("/login");
 
-  const { userId, token } = session;
-
-  const [channel, userRaw] = await Promise.all([
+  const [channel, user] = await Promise.all([
     getChannelById(channelId, workspaceId),
-    getCurrentUser(), 
+    getCurrentUser(),
   ]);
 
-  if (!channel || !userRaw) {
+  if (!channel || !user) {
     return notFound();
   }
-  
+
   return (
     <main className="h-full max-h-screen overflow-hidden flex flex-col">
-    <ChannelClient 
-      channel={channel} 
-      user={userRaw} 
-    />
+      <ChannelClient 
+        channel={channel} 
+        user={user}
+      />
     </main>
   );
 }

@@ -173,9 +173,9 @@
 
 ### Development
 ```bash
-npm run dev          # Start Next.js dev server + WebSocket server
-npm run build        # Production build
-npm run start        # Production server
+bun run dev          # Start Next.js dev server + WebSocket server
+bun run build        # Production build
+bun run start        # Production server
 ```
 
 ### Key Servers
@@ -183,19 +183,3 @@ npm run start        # Production server
 - **Elysia WebSocket**: Embedded in `src/index.ts`
 
 ---
-
-## Future Roadmap
-
-- 📝 Approval System (leave requests, permissions)
-- 🧰 Internal Tools (custom company operations)
-- 🔗 Third-party Integrations
-
----
-
-## Notes
-
-- **Multi-tenant**: Each workspace is isolated
-- **Real-time**: WebSocket notifications for messages & status updates
-- **Secure**: JWT-based authentication with bcrypt password hashing
-- **Type-safe**: Full TypeScript + Zod validation
-- **Database**: PostgreSQL via Neon serverless with Drizzle ORM
